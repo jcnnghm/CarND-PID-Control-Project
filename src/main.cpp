@@ -33,9 +33,13 @@ int main()
   uWS::Hub h;
 
   PID pid;
-  // TODO: Initialize the pid variable.
+  // Calculated using Ziegler-Nichols method
+  double Ku = 0.2;  // P value, when alone, where the car starts oscillating
+  double Tu = 65;  // Period of oscillation (i.e. 65 messages per cycle)
+  pid.Init(0.6 * Ku, (1.2 * Ku) / Tu, (3.0 * Ku * Tu) / 40.0);
+  int count = 0;
 
-  h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+  h.onMessage([&pid, &count](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -57,7 +61,18 @@ int main()
           * NOTE: Feel free to play around with the throttle and speed. Maybe use
           * another PID controller to control the speed!
           */
-          
+
+          count++;
+          std::cout << "Count: " << count << std::endl;
+
+          double diffCte = cte - pid.prevCte;
+          pid.UpdateError(cte);
+          std::cout << "P: " << pid.Kp * cte << " D: " << pid.Kd * diffCte << " I: " << pid.Ki * pid.TotalError() << std::endl;
+          steer_value = pid.Kp * cte + pid.Kd * diffCte + pid.Ki * pid.TotalError();
+
+          // steer_value could possibly be improved by amplifying the value at
+          // low speed.
+
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
 

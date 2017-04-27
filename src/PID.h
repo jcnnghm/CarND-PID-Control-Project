@@ -12,10 +12,12 @@ public:
 
   /*
   * Coefficients
-  */ 
+  */
   double Kp;
   double Ki;
   double Kd;
+  double prevCte;
+  double totalError;
 
   /*
   * Constructor
