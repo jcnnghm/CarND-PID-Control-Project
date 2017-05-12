@@ -3,6 +3,30 @@ Self-Driving Car Engineer Nanodegree Program
 
 ---
 
+## Reflection
+
+### PID Components
+
+The Proportional, Integral, and Derivative (PID) components are described below.  They all operated as I expected.
+
+#### Proportional Component
+
+The proportional component is primarily responsible for steering the car toward the center-line, proportionally to how far the car is away from the center line.  As the car gets further from the center line, the car will steer harder back toward center.  When the proportional component is used alone, the car will overshoot because it won't start countersteering until it has passed the center line.
+
+#### Integral Component
+
+The integral component is proportional to the accumulated error.  As error accumulates, this term will have a greater impact, effectively adding a bias to correct any persistent error.  For example, if the car were to pull slightly to the right, error would accumulate that when multiplied by the integral gain would bias the car to steer slightly to the left to compensate.
+
+#### Derivative Component
+
+The derivative component is proportional to the difference in cross-track error between time steps.  This component allows the car to counter-steer, helping to prevent overshooting.  As the car approaches the center line, the proportional control will continue to steer toward the center.  The derivative component will steer away from the center line, more agressively as the car moves more quickly toward the center line.  If the car is moving very quickly toward the center line, this component can overwhelm the proportional component, so that the car matches the center line instead of overshooting.  
+
+### Hyperparameter Selection
+
+I used the [Ziegler–Nichols](https://en.wikipedia.org/wiki/PID_controller#Ziegler.E2.80.93Nichols_method) method to tune the PID controller.  The Ziegler-Nichols method involves gradually increasing the proportional gain, with the integral and derivative gains set to zero, until the car begins to oscillate.  This is the point of ultimate gain, K_u.  T_u is the period of oscillation at this gain (i.e. how many messages are received per cycle).  These values can then be used to calculate optimal gains for the PID components.
+
+The car started oscillating with proportional gain set to K_u=0.2, with a cycle of T_u=65 messages in my tests.  With that data, I was able to calculate values for each of the PID gains, where K_p = 0.6 * K_u, K_i = 1.2 * K_u / T_u, and K_d = 3 * K_u * T_u / 40.
+
 ## Dependencies
 
 * cmake >= 3.5
