@@ -67,8 +67,11 @@ int main()
 
           double diffCte = cte - pid.prevCte;
           pid.UpdateError(cte);
-          std::cout << "P: " << pid.Kp * cte << " D: " << pid.Kd * diffCte << " I: " << pid.Ki * pid.TotalError() << std::endl;
-          steer_value = pid.Kp * cte + pid.Kd * diffCte + pid.Ki * pid.TotalError();
+          double p = pid.Kp * cte;
+          double d = pid.Kd * diffCte;
+          double i = pid.Ki * pid.TotalError();
+          std::cout << "P: " << p << " D: " << d << " I: " << i << std::endl;
+          steer_value = - (p + d + i);
 
           // steer_value could possibly be improved by amplifying the value at
           // low speed.
